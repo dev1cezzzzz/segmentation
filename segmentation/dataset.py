@@ -1,14 +1,10 @@
-
-
-LABELS_MAP = {
+ABELS_MAP = {
     0: "background",
     1: "liver",
 }
-
-
 COLORMAP = [
     [0, 0, 0],
-    [128, 0, 0],
+    [255, 255, 255],
 ]
 
 import os
