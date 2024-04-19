@@ -1,4 +1,4 @@
-ABELS_MAP = {
+LABELS = {
     0: "background",
     1: "liver",
 }
@@ -7,40 +7,31 @@ COLORMAP = [
     [255, 255, 255],
 ]
 
-import os
+from torch.utils.data import Dataset
 from PIL import Image
 import numpy as np
-from torch import Tensor
 
-class CustomVOCSegmentation:
-    def __init__(self, root: str, image_set: str = "train", transform=None, target_transform=None,
-                 transforms=None):
-        super().__init__(root, image_set, transform, target_transform, transforms)
+class CustomDataset(Dataset):
+    def __init__(self, image_paths, mask_paths, transform=None):
+        self.image_paths = image_paths
+        self.mask_paths = mask_paths
+        self.transform = transform
 
-        self.images_folder = os.path.join(root, "images")  # Папка с изображениями
-        self.masks_folder = os.path.join(root, "masks")  # Папка с масками
+    def __len__(self):
+        return len(self.image_paths)
 
-    def __getitem__(self, index: int) -> tuple[Tensor, Tensor]:
-        img_path = os.path.join(self.images_folder, self.images[index])
-        target_path = os.path.join(self.masks_folder, self.masks[index])
+    def __getitem__(self, index):
+        image_path = self.image_paths[index]
+        mask_path = self.mask_paths[index]
 
-        img = Image.open(img_path).convert("RGB")
-        target = Image.open(target_path).convert("RGB")
+        # Загрузка изображения и маски
+        img = Image.open(image_path).convert("RGB")
+        target = Image.open(mask_path).convert("RGB")
 
-        img = np.array(img, dtype=np.uint8)
-        target = np.array(target, dtype=np.uint8)
-        target = self._convert_to_segmentation_mask(target)
+        # Применение преобразований, если они заданы
+        if self.transform:
+            augmented = self.transform(image=np.array(img), mask=np.array(target))
+            img, target = augmented["image"], augmented["mask"]
 
-        assert self.transform is not None
-
-        augmented = self.transform(image=img, mask=target)
-        return augmented["image"].float(), augmented["mask"].float().permute(2, 0, 1)
-
-    @staticmethod
-    def _convert_to_segmentation_mask(mask: np.ndarray) -> np.ndarray:
-        height, width = mask.shape[:2]
-        segmentation_mask = np.zeros((height, width, len(VOC_COLORMAP)), dtype=np.uint8)
-        for label_index, label in enumerate(VOC_COLORMAP):
-            segmentation_mask[:, :, label_index] = np.all(mask == label, axis=-1).astype(np.uint8)
-
-        return segmentation_mask
+        # Преобразование в тензоры и возврат кортежа
+        return img.float(), target.float().permute(2, 0, 1)
