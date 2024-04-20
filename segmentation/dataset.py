@@ -7,31 +7,43 @@ COLORMAP = [
     [255, 255, 255],
 ]
 
-from torch.utils.data import Dataset
 from PIL import Image
+from torch.utils.data import Dataset
 import numpy as np
+import os
 
 class CustomDataset(Dataset):
-    def __init__(self, image_paths, mask_paths, transform=None):
-        self.image_paths = image_paths
-        self.mask_paths = mask_paths
-        self.transform = transform
+    def __init__(self, root_dir, transforms=None):
+        self.root_dir = root_dir
+        self.transforms = transforms
+        self.image_paths = []
+        self.mask_paths = []
+
+        # Получаем список файлов в папке Links
+        link_dir = os.path.join(root_dir, 'images')
+        mask_dir = os.path.join(root_dir, 'masks')
+
+        # Перебираем файлы и добавляем изображения и соответствующие маски в списки
+        for file in os.listdir(link_dir):
+            if file.endswith(".png"):  # Предполагаем, что изображения имеют расширения .png
+                image_path = os.path.join(link_dir, file)
+                mask_file = "mask_" + file
+                mask_path = os.path.join(mask_dir, mask_file)
+                if os.path.exists(mask_path):
+                    self.image_paths.append(image_path)
+                    self.mask_paths.append(mask_path)
 
     def __len__(self):
         return len(self.image_paths)
 
     def __getitem__(self, index):
-        image_path = self.image_paths[index]
-        mask_path = self.mask_paths[index]
+        image = Image.open(self.image_paths[index])
+        mask = Image.open(self.mask_paths[index])
 
-        # Загрузка изображения и маски
-        img = Image.open(image_path).convert("RGB")
-        target = Image.open(mask_path).convert("RGB")
+        if self.transforms:
+            augmented = self.transforms(image=np.array(image), mask=np.array(mask))
+            image = augmented['image']
+            mask = augmented['mask']
 
-        # Применение преобразований, если они заданы
-        if self.transform:
-            augmented = self.transform(image=np.array(img), mask=np.array(target))
-            img, target = augmented["image"], augmented["mask"]
+        return image.float(), mask.float().permute(2, 0, 1)
 
-        # Преобразование в тензоры и возврат кортежа
-        return img.float(), target.float().permute(2, 0, 1)
