@@ -45,5 +45,5 @@ class CustomDataset(Dataset):
             image = augmented['image']
             mask = augmented['mask']
 
-        return image.float(), mask.float().permute(2, 0, 1)
+        return image, mask
 
