@@ -1,12 +1,3 @@
-LABELS = {
-    0: "background",
-    1: "liver",
-}
-COLORMAP = [
-    [0, 0, 0],
-    [255, 255, 255],
-]
-
 from PIL import Image
 from torch.utils.data import Dataset
 import numpy as np

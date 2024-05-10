@@ -142,5 +142,4 @@ class OutConv(nn.Module):
 
 
 def count_model_params(model: nn.Module) -> int:
-    """Returns the amount of pytorch model parameters."""
     return sum(p.numel() for p in model.parameters())
