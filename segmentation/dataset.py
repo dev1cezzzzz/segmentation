@@ -38,4 +38,4 @@ class CustomDataset(Dataset):
         assert self.transforms is not None
 
         augmented = self.transforms(image=img, mask=target)
-        return augmented["image"].float(), augmented["mask"].float()
+        return augmented["image"].float(), augmented["mask"].unsqueeze(0).float()
