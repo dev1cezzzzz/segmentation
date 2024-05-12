@@ -11,9 +11,9 @@ class CustomDataset(Dataset):
         self.image_paths = []
         self.mask_paths = []
 
-        # Получаем список файлов в папке Lungs
-        link_dir = os.path.join(root_dir, 'Lungs')
-        mask_dir = os.path.join(root_dir, 'Masks')
+        # Получаем список файлов в папке Links
+        link_dir = os.path.join(root_dir, 'images')
+        mask_dir = os.path.join(root_dir, 'masks')
 
         # Перебираем файлы и добавляем изображения и соответствующие маски в списки
         for file in os.listdir(link_dir):
