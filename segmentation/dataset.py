@@ -1,8 +1,8 @@
 from PIL import Image
 from torch.utils.data import Dataset
+from torch import Tensor
 import numpy as np
 import os
-from torch import Tensor
 
 class CustomDataset(Dataset):
     def __init__(self, root_dir, transforms=None):
@@ -11,9 +11,9 @@ class CustomDataset(Dataset):
         self.image_paths = []
         self.mask_paths = []
 
-        # Получаем список файлов в папке Links
-        link_dir = os.path.join(root_dir, 'images')
-        mask_dir = os.path.join(root_dir, 'masks')
+        # Получаем список файлов в папке Lungs
+        link_dir = os.path.join(root_dir, 'Lungs')
+        mask_dir = os.path.join(root_dir, 'Masks')
 
         # Перебираем файлы и добавляем изображения и соответствующие маски в списки
         for file in os.listdir(link_dir):
@@ -34,8 +34,8 @@ class CustomDataset(Dataset):
 
         img = np.array(img, dtype=np.uint8)
         target = np.array(target, dtype=np.uint8)
-
+        mask = np.where(target == 255, 1, target)
         assert self.transforms is not None
 
-        augmented = self.transforms(image=img, mask=target)
+        augmented = self.transforms(image=img, mask=mask)
         return augmented["image"].float(), augmented["mask"].unsqueeze(0).float()
