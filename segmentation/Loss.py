@@ -4,7 +4,7 @@ from typing import Literal
 import torch
 from torch import Tensor, einsum, nn
 
-from Metric import EPSILON, compute_dice_per_channel
+from metric import EPSILON, compute_dice_per_channel
 
 NormalizationOptionT = Literal["sigmoid", "softmax", "none"]
 
