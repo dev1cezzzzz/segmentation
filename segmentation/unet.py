@@ -9,9 +9,9 @@ class UNet(nn.Module):
     ) -> None:
         super().__init__()
 
-        self.bilinear = bilinear # Флаг, определяющий, использовать ли билинейную интерполяцию для upsampling
+        self.bilinear = bilinear  # Флаг, определяющий, использовать ли билинейную интерполяцию для upsampling
 
-        self.in_conv = DoubleConv(in_channels, 64) # Обработка входного изображения
+        self.in_conv = DoubleConv(in_channels, 64)  # Обработка входного изображения
 
         self.down1 = _Down(64, 128)  # Слои downsampling (снижение разрешения)
         self.down2 = _Down(128, 256)
@@ -19,17 +19,17 @@ class UNet(nn.Module):
         channels_factor = 2 if bilinear else 1
         self.down4 = _Down(512, 1024 // channels_factor)
 
-        self.up1 = _Up(1024, 512 // channels_factor, bilinear=bilinear) # Слои upsampling (увеличение разрешения)
+        self.up1 = _Up(1024, 512 // channels_factor, bilinear=bilinear)  # Слои upsampling (увеличение разрешения)
         self.up2 = _Up(512, 256 // channels_factor, bilinear=bilinear)
         self.up3 = _Up(256, 128 // channels_factor, bilinear=bilinear)
         self.up4 = _Up(128, 64, bilinear=bilinear)
 
-        self.out_conv = OutConv(64, out_channels) # Финальная свертка
+        self.out_conv = OutConv(64, out_channels)  # Финальная свертка
 
 
     def forward(self, x: Tensor) -> Tensor:
-        x1 = self.in_conv(x) # Обрабатывает входное изображение через двойную свертку
-        x2 = self.down1(x1) # Применяет первый уровень downsampling
+        x1 = self.in_conv(x)  # Обрабатывает входное изображение через двойную свертку
+        x2 = self.down1(x1)  # Применяет первый уровень downsampling
         x3 = self.down2(x2)
         x4 = self.down3(x3)
         x5 = self.down4(x4)
@@ -38,15 +38,15 @@ class UNet(nn.Module):
         # Последовательно применяет уровни upsampling, объединяя карты признаков с соответствующими уровнями downsampling
         return self.out_conv(x)
 
-# Реализует двойную свертку с нормализацией и активацией Leaky ReLU для извлечения признаков
+# Реализация двойной свертки с нормализацией и активацией Leaky ReLU для извлечения признаков
 class DoubleConv(nn.Module):
     def __init__(
         self,
-        in_channels: int, # количество входных каналов
-        out_channels: int, # количество выходных каналов
-        mid_channels: int | None = None, # количество каналов на промежуточном слое (если не указано, равно out_channels)
-        kernel_size: int = 3, # размер ядра свертки
-        padding: int = 1, # размер паддинга для свертки (количество пикселей, добавляемых к каждому краю входного изображения)
+        in_channels: int, #  Количество входных каналов
+        out_channels: int, #  Количество выходных каналов
+        mid_channels: int | None = None,  # Количество каналов на промежуточном слое (если не указано, равно out_channels)
+        kernel_size: int = 3,  # Размер ядра свертки
+        padding: int = 1,  # Размер паддинга для свертки (количество пикселей, добавляемых к каждому краю входного изображения)
     ) -> None:
         super().__init__()
 
@@ -83,7 +83,7 @@ class _Down(nn.Module):
         super().__init__()
 
         self.maxpool_conv = nn.Sequential(
-            nn.MaxPool2d(2), # Уменьшает размер изображения в два раза, сохраняя количество каналов
+            nn.MaxPool2d(2),  # Уменьшает размер изображения в два раза, сохраняя количество каналов
             DoubleConv(in_channels, out_channels)
         )
 
@@ -96,7 +96,7 @@ class _Up(nn.Module):
         self,
         in_channels: int,
         out_channels: int,
-        bilinear: bool = True, # операция билинейного интерполирования - увеличить размер входного тензора x
+        bilinear: bool = True,  # Операция билинейного интерполирования - увеличить размер входного тензора x
             # в два раза ( Это позволяет получить промежуточное представление, близкое к оригинальному размеру)
         kernel_size_transp: int = 2,
         stride_transp: int = 2,

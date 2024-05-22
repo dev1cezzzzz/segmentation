@@ -5,12 +5,11 @@ from dataclasses import dataclass
 from os.path import join as pjoin
 from pathlib import Path
 from shutil import copyfile, rmtree
-from typing import Any, Callable, cast
+from typing import Any, Callable
 
 import torch
 from accelerate import Accelerator
 from torch import nn, optim
-from torch.nn import functional as F  # noqa
 from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter

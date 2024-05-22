@@ -34,7 +34,7 @@ class CustomDataset(Dataset):
 
         img = np.array(img, dtype=np.uint8)
         target = np.array(target, dtype=np.uint8)
-        mask = np.where(target == 255, 1, target)
+        mask = np.where(target == 255, 1, 0)
         assert self.transforms is not None
 
         augmented = self.transforms(image=img, mask=mask)

@@ -23,7 +23,7 @@ class DiceLoss(nn.Module):
             raise ValueError
 
         self.register_buffer("weights", weights)
-        # используется для сохранения тензора весов в модели,
+        # Используется для сохранения тензора весов в модели,
         # чтобы он был частью состояния модели, но не обновлялся градиентами
 
         self.epsilon = epsilon
